@@ -4,11 +4,13 @@ import { generate as randomWords } from "random-words";
 import "./App.css";
 
 const NUMB_OF_WORDS = 200;
-const SECONDS = 3;
+const SECONDS = 60;
 
 function App() {
   const [words, setWords] = useState([]);
   const [countDown, setCountDown] = useState(SECONDS);
+  const [currentInput, setCurrentInput] = useState("")
+  const [currentWordIndex, setCurrentWordIndex] = useState(0)
 
   useEffect(() => {
     setWords(generateWords());
@@ -30,6 +32,21 @@ function App() {
     }, 1000);
   }
 
+  function handleKeyDown({keyCode}) {
+// space bar
+    if(keyCode === 32) {
+      checkMatch()
+      setCurrentInput("") //When you click space input getting clean
+      setCurrentWordIndex(currentWordIndex + 1)
+    }
+  }
+
+  function checkMatch() {
+    const wordToCompare = words[currentWordIndex]
+    const doesItMatch = wordToCompare === currentInput.trim()
+    console.log({doesItMatch})
+  }
+
   return (
     <div className="App">
       <div className="section">
@@ -38,7 +55,7 @@ function App() {
         </div>
       </div>
       <div className="control is-expanded section">
-        <input type="text" className="input" />
+        <input type="text" className="input" onKeyDown={handleKeyDown} value={currentInput} onChange={(e) => setCurrentInput(e.target.value)} />
       </div>
       <div className="section">
         <button className="button is-info is-fullwidth" onClick={start}>
@@ -50,10 +67,14 @@ function App() {
           <div className="card-content">
             <div className="content">
               {words.map((word, i) => (
-                <>
-                  <span>{word}</span>
+                <span key={i}>
+                  <span>
+                    {word.split("").map((char, idx) => (
+                      <span key={idx}>{char}</span>
+                    ))}
+                  </span>
                   <span> </span>
-                </>
+                </span>
               ))}
             </div>
           </div>
