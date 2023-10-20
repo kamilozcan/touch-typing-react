@@ -20,7 +20,13 @@ function App() {
 
   //After click start button, we can start to type in input textbox
   const textInput = useRef(null);
+
   const intervalRef = useRef();
+
+  //track the correctness of each word
+  const [wordCorrectness, setWordCorrectness] = useState(
+    Array(NUMB_OF_WORDS).fill(true)
+  );
 
   useEffect(() => {
     setWords(generateWords());
@@ -45,6 +51,8 @@ function App() {
       setCurrentCharIndex(-1);
       setCurrentChar("");
       setCountDown(SECONDS);
+      // Reset word correctness to all true
+    setWordCorrectness(Array(NUMB_OF_WORDS).fill(true));
     }
 
     if (status !== "started") {
@@ -72,7 +80,14 @@ function App() {
     }
     setIsRunning(false);
     setStatus("finished");
+    setWords([]);
+    setCurrentWordIndex(0);
+    setCorrect(0);
+    setInCorrect(0);
+    setCurrentCharIndex(-1);
+    setCurrentChar("");
     setCountDown(SECONDS);
+    setCurrentInput("");
   }
 
   function handleKeyDown({ keyCode, key }) {
@@ -85,7 +100,7 @@ function App() {
 
       //backspace
     } else if (keyCode === 8) {
-      setCurrentCharIndex(currentChar - 1);
+      setCurrentCharIndex(currentCharIndex - 1);
       setCurrentChar("");
     } else {
       setCurrentCharIndex(currentCharIndex + 1);
@@ -96,6 +111,11 @@ function App() {
   function checkMatch() {
     const wordToCompare = words[currentWordIndex];
     const doesItMatch = wordToCompare === currentInput.trim();
+    if (!doesItMatch) {
+      const updatedCorrectness = [...wordCorrectness];
+      updatedCorrectness[currentWordIndex] = false;
+      setWordCorrectness(updatedCorrectness);
+    }
     if (doesItMatch) {
       setCorrect(correct + 1);
     } else {
@@ -103,30 +123,32 @@ function App() {
     }
   }
 
+  // Modify the getCharClass function to apply "has-background-danger" to incorrect words.
   function getCharClass(wordIdx, charIdx, char) {
-    if (
-      wordIdx === currentWordIndex &&
-      charIdx === currentCharIndex &&
-      currentChar &&
-      status !== "finished"
-    ) {
-      if (char === currentChar) {
-        // when we hit the space bar we don't have a currentChar
-        return "has-background-success";
-      } else {
-        return "has-background-danger";
-      }
-    }
-
-    // if we do more mistake of more than word lenght
-    else if (
-      wordIdx === currentWordIndex &&
-      currentCharIndex >= words[currentWordIndex].length
-    ) {
-      return "has-background-danger";
-    } else {
+    if (status === "finished") {
       return "";
     }
+
+    const isCurrentWord = wordIdx === currentWordIndex;
+    const isCorrectChar = isCurrentWord && charIdx === currentCharIndex && char === currentChar;
+    const isIncorrectChar = isCurrentWord && charIdx === currentCharIndex && char !== currentChar;
+    const isIncorrectWord = !wordCorrectness[wordIdx];
+
+    if (isCorrectChar) {
+      return "has-background-success";
+    } else if (isIncorrectChar) {
+      return "has-background-danger";
+    } else if (isIncorrectWord) {
+      return "has-background-danger";
+    }
+
+    if (isCurrentWord) {
+      return "";
+    } else if (charIdx >= words[wordIdx].length) {
+      return "has-background-danger";
+    }
+
+    return "";
   }
 
   return (
@@ -145,6 +167,7 @@ function App() {
           onKeyDown={handleKeyDown}
           value={currentInput}
           onChange={(e) => setCurrentInput(e.target.value)}
+          placeholder="You will automatically start typing after you click the start button!"
         />
       </div>
       <div className="section">
@@ -161,7 +184,7 @@ function App() {
       </div>
       {/* if statement for status start*/}
       {status === "started" && (
-        <div className="section">
+        <div className="section-content">
           <div className="card">
             <div className="card-content">
               <div className="content">
