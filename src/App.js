@@ -16,9 +16,11 @@ function App() {
   const [correct, setCorrect] = useState(0);
   const [incorrect, setInCorrect] = useState(0);
   const [status, setStatus] = useState("waiting");
+  const [isRunning, setIsRunning] = useState(false);
 
   //After click start button, we can start to type in input textbox
   const textInput = useRef(null);
+  const intervalRef = useRef();
 
   useEffect(() => {
     setWords(generateWords());
@@ -35,25 +37,26 @@ function App() {
   }
 
   function start() {
-    if (status === "finished") {
+    if (status === "finished" || !isRunning) {
       setWords(generateWords());
       setCurrentWordIndex(0);
       setCorrect(0);
       setInCorrect(0);
-
-      // when we hit the start again it refreshing
       setCurrentCharIndex(-1);
       setCurrentChar("");
+      setCountDown(SECONDS);
     }
 
     if (status !== "started") {
       setStatus("started");
-      let interval = setInterval(() => {
+      setIsRunning(true);
+      intervalRef.current = setInterval(() => {
         setCountDown((prevCountdown) => {
           if (prevCountdown === 0) {
-            clearInterval(interval);
+            clearInterval(intervalRef.current);
             setStatus("finished");
             setCurrentInput("");
+            setIsRunning(false);
             return SECONDS;
           } else {
             return prevCountdown - 1;
@@ -63,11 +66,20 @@ function App() {
     }
   }
 
+  function stop() {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    setIsRunning(false);
+    setStatus("finished");
+    setCountDown(SECONDS);
+  }
+
   function handleKeyDown({ keyCode, key }) {
     // space bar
     if (keyCode === 32) {
       checkMatch();
-      setCurrentInput(""); //When you click space input getting clean
+      setCurrentInput(""); //When you click space input gets cleared
       setCurrentWordIndex(currentWordIndex + 1);
       setCurrentCharIndex(-1);
 
@@ -87,7 +99,7 @@ function App() {
     if (doesItMatch) {
       setCorrect(correct + 1);
     } else {
-      setInCorrect((incorrect = 1));
+      setInCorrect(incorrect + 1);
     }
   }
 
@@ -136,9 +148,16 @@ function App() {
         />
       </div>
       <div className="section">
-        <button className="button is-info is-fullwidth" onClick={start}>
-          Start
-        </button>
+        {!isRunning && (
+          <button className="button is-info is-fullwidth" onClick={start}>
+            Start
+          </button>
+        )}
+        {isRunning && (
+          <button className="button is-danger is-fullwidth" onClick={stop}>
+            Stop
+          </button>
+        )}
       </div>
       {/* if statement for status start*/}
       {status === "started" && (
