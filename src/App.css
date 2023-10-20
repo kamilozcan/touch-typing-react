@@ -74,3 +74,15 @@ body {
 .has-text-info {
   color: #17a2b8; /* Blue color for info text */
 }
+
+.top-right {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 14px; /* You can adjust the font size as needed */
+  text-align: right;
+}
+
+.small-font {
+  font-size: 14px; /* Adjust the font size as needed */
+}

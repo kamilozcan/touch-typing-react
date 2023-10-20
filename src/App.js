@@ -3,7 +3,7 @@ import { generate as randomWords } from "random-words";
 
 import "./App.css";
 
-const NUMB_OF_WORDS = 200;
+const NUMB_OF_WORDS = 100;
 const SECONDS = 10;
 
 function App() {
@@ -17,6 +17,8 @@ function App() {
   const [incorrect, setInCorrect] = useState(0);
   const [status, setStatus] = useState("waiting");
   const [isRunning, setIsRunning] = useState(false);
+  const [previousScore, setPreviousScore] = useState(0);
+  const [previousAccuracy, setPreviousAccuracy] = useState(0);
 
   //After click start button, we can start to type in input textbox
   const textInput = useRef(null);
@@ -27,6 +29,18 @@ function App() {
   const [wordCorrectness, setWordCorrectness] = useState(
     Array(NUMB_OF_WORDS).fill(true)
   );
+
+  useEffect(() => {
+    const storedPreviousScore = localStorage.getItem("previousScore");
+    if (storedPreviousScore) {
+      setPreviousScore(parseInt(storedPreviousScore));
+    }
+
+    const storedPreviousAccuracy = localStorage.getItem("previousAccuracy");
+    if (storedPreviousAccuracy) {
+      setPreviousAccuracy(parseInt(storedPreviousAccuracy));
+    }
+  }, []);
 
   useEffect(() => {
     setWords(generateWords());
@@ -52,7 +66,7 @@ function App() {
       setCurrentChar("");
       setCountDown(SECONDS);
       // Reset word correctness to all true
-    setWordCorrectness(Array(NUMB_OF_WORDS).fill(true));
+      setWordCorrectness(Array(NUMB_OF_WORDS).fill(true));
     }
 
     if (status !== "started") {
@@ -65,6 +79,17 @@ function App() {
             setStatus("finished");
             setCurrentInput("");
             setIsRunning(false);
+
+            localStorage.setItem("previousScore", correct);
+            setPreviousScore(correct);
+
+            // Save WPM and Accuracy scores
+            const totalWords = correct + incorrect;
+
+            const accuracy = Math.round((correct / totalWords) * 100);
+            localStorage.setItem("previousAccuracy", accuracy);
+            setPreviousAccuracy(accuracy);
+
             return SECONDS;
           } else {
             return prevCountdown - 1;
@@ -89,7 +114,6 @@ function App() {
     setCountDown(SECONDS);
     setCurrentInput("");
   }
-
   function handleKeyDown({ keyCode, key }) {
     // space bar
     if (keyCode === 32) {
@@ -130,8 +154,10 @@ function App() {
     }
 
     const isCurrentWord = wordIdx === currentWordIndex;
-    const isCorrectChar = isCurrentWord && charIdx === currentCharIndex && char === currentChar;
-    const isIncorrectChar = isCurrentWord && charIdx === currentCharIndex && char !== currentChar;
+    const isCorrectChar =
+      isCurrentWord && charIdx === currentCharIndex && char === currentChar;
+    const isIncorrectChar =
+      isCurrentWord && charIdx === currentCharIndex && char !== currentChar;
     const isIncorrectWord = !wordCorrectness[wordIdx];
 
     if (isCorrectChar) {
@@ -153,6 +179,11 @@ function App() {
 
   return (
     <div className="App">
+      <div className="top-right">
+        <p className="small-font">
+          Previous Score: {previousScore} WPM, {previousAccuracy}% Accuracy
+        </p>
+      </div>
       <div className="section">
         <div className="is-size-1 has-text-centered has-text-primary">
           <h2>{countDown}</h2>
