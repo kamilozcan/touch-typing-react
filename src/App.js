@@ -1,31 +1,29 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { generate as randomWords } from "random-words";
-
-import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Button, Container, Row, Col, Card } from "react-bootstrap";
 
 const NUMB_OF_WORDS = 100;
-const SECONDS = 60;
+const SECONDS = 10;
 
 function App() {
   const [words, setWords] = useState([]);
   const [countDown, setCountDown] = useState(SECONDS);
   const [currentInput, setCurrentInput] = useState("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [currentCharIndex, setCurrentCharIndex] = useState(-1); // -1 because when we hit the key it is going to 0(zero)
+  const [currentCharIndex, setCurrentCharIndex] = useState(-1);
   const [currentChar, setCurrentChar] = useState("");
   const [correct, setCorrect] = useState(0);
-  const [incorrect, setInCorrect] = useState(0);
+  const [incorrect, setIncorrect] = useState(0);
   const [status, setStatus] = useState("waiting");
   const [isRunning, setIsRunning] = useState(false);
   const [previousScore, setPreviousScore] = useState(0);
   const [previousAccuracy, setPreviousAccuracy] = useState(0);
 
-  //After click start button, we can start to type in input textbox
   const textInput = useRef(null);
 
   const intervalRef = useRef();
 
-  //track the correctness of each word
   const [wordCorrectness, setWordCorrectness] = useState(
     Array(NUMB_OF_WORDS).fill(true)
   );
@@ -61,11 +59,10 @@ function App() {
       setWords(generateWords());
       setCurrentWordIndex(0);
       setCorrect(0);
-      setInCorrect(0);
+      setIncorrect(0);
       setCurrentCharIndex(-1);
       setCurrentChar("");
       setCountDown(SECONDS);
-      // Reset word correctness to all true
       setWordCorrectness(Array(NUMB_OF_WORDS).fill(true));
     }
 
@@ -83,7 +80,6 @@ function App() {
             localStorage.setItem("previousScore", correct);
             setPreviousScore(correct);
 
-            // Save WPM and Accuracy scores
             const totalWords = correct + incorrect;
 
             const accuracy = Math.round((correct / totalWords) * 100);
@@ -108,27 +104,25 @@ function App() {
     setWords([]);
     setCurrentWordIndex(0);
     setCorrect(0);
-    setInCorrect(0);
+    setIncorrect(0);
     setCurrentCharIndex(-1);
     setCurrentChar("");
     setCountDown(SECONDS);
     setCurrentInput("");
   }
+
   function handleKeyDown({ keyCode, key }) {
-    // space bar
     if (keyCode === 32) {
       checkMatch();
-      setCurrentInput(""); //When you click space input gets cleared
+      setCurrentInput("");
       setCurrentWordIndex(currentWordIndex + 1);
       setCurrentCharIndex(-1);
-
-      //backspace
     } else if (keyCode === 8) {
       setCurrentCharIndex(currentCharIndex - 1);
       setCurrentChar("");
     } else {
       setCurrentCharIndex(currentCharIndex + 1);
-      setCurrentChar(key); // tracking the chars
+      setCurrentChar(key);
     }
   }
 
@@ -143,11 +137,10 @@ function App() {
     if (doesItMatch) {
       setCorrect(correct + 1);
     } else {
-      setInCorrect(incorrect + 1);
+      setIncorrect(incorrect + 1);
     }
   }
 
-  // Modify the getCharClass function to apply "has-background-danger" to incorrect words.
   function getCharClass(wordIdx, charIdx, char) {
     if (status === "finished") {
       return "";
@@ -178,53 +171,60 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <div className="top-right">
-        <p className="small-font">
-          Previous Score: {previousScore} WPM, {previousAccuracy}% Accuracy
-        </p>
-      </div>
-      <div className="section">
-        <div className="is-size-1 has-text-centered has-text-primary">
-          <h2>{countDown}</h2>
-        </div>
-      </div>
-      <div className="control is-expanded section">
-        <input
-          ref={textInput}
-          disabled={status !== "started"}
-          type="text"
-          className="input"
-          onKeyDown={handleKeyDown}
-          value={currentInput}
-          onChange={(e) => setCurrentInput(e.target.value)}
-          placeholder="You will automatically start typing after you click the start button!"
-        />
-      </div>
-      <div className="section">
-        {!isRunning && (
-          <button className="button is-info is-fullwidth" onClick={start}>
-            Start
-          </button>
-        )}
-        {isRunning && (
-          <button className="button is-danger is-fullwidth" onClick={stop}>
-            Stop
-          </button>
-        )}
-      </div>
-      {/* if statement for status start*/}
+    <Container>
+      <Row className="mt-5">
+        <Col className="text-right">
+          <p className="small-font">
+            Previous Score: {previousScore} WPM, {previousAccuracy}% Accuracy
+          </p>
+        </Col>
+      </Row>
+      <Row>
+        <Col className="text-center">
+          <h2 className="display-4">{countDown}</h2>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <div className="input-group mb-3">
+            <input
+              ref={textInput}
+              type="text"
+              className="form-control"
+              disabled={status !== "started"}
+              onKeyDown={handleKeyDown}
+              value={currentInput}
+              onChange={(e) => setCurrentInput(e.target.value)}
+              placeholder="You will automatically start typing after you click the start button!"
+            />
+            <div className="input-group-append">
+              {!isRunning && (
+                <Button variant="info" onClick={start}>
+                  Start
+                </Button>
+              )}
+              {isRunning && (
+                <Button variant="danger" onClick={stop}>
+                  Stop
+                </Button>
+              )}
+            </div>
+          </div>
+        </Col>
+      </Row>
       {status === "started" && (
         <div className="section-content">
-          <div className="card">
-            <div className="card-content">
-              <div className="content">
+          <Card>
+            <Card.Body>
+              <Card.Text>
                 {words.map((word, i) => (
                   <span key={i}>
                     <span>
                       {word.split("").map((char, idx) => (
-                        // i= coming from word, idx= coming from char, char= value of current character
-                        <span className={getCharClass(i, idx, char)} key={idx}>
+                        <span
+                          className={getCharClass(i, idx, char)}
+                          key={idx}
+                        >
                           {char}
                         </span>
                       ))}
@@ -232,29 +232,26 @@ function App() {
                     <span> </span>
                   </span>
                 ))}
-              </div>
-            </div>
-          </div>
+              </Card.Text>
+            </Card.Body>
+          </Card>
         </div>
       )}
-      {/* if statement for status finish */}
       {status === "finished" && (
-        <div className="section">
-          <div className="columns">
-            <div className="column has-text-centered">
-              <p className="is-size-5">Words per minute:</p>
-              <p className="has-text-primary is-size-1">{correct}</p>
-            </div>
-            <div className="column has-text-centered">
-              <div className="is-size-5">Accurancy:</div>
-              <p className="has-text-info is-size-1">
-                {Math.round((correct / (correct + incorrect)) * 100)} %
-              </p>
-            </div>
-          </div>
-        </div>
+        <Row className="mt-4">
+          <Col className="text-center">
+            <p className="h5">Words per minute:</p>
+            <p className="display-4 text-primary">{correct}</p>
+          </Col>
+          <Col className="text-center">
+            <p className="h5">Accuracy:</p>
+            <p className="display-4 text-info">
+              {Math.round((correct / (correct + incorrect)) * 100)} %
+            </p>
+          </Col>
+        </Row>
       )}
-    </div>
+    </Container>
   );
 }
 
