@@ -221,10 +221,7 @@ function App() {
                   <span key={i}>
                     <span>
                       {word.split("").map((char, idx) => (
-                        <span
-                          className={getCharClass(i, idx, char)}
-                          key={idx}
-                        >
+                        <span className={getCharClass(i, idx, char)} key={idx}>
                           {char}
                         </span>
                       ))}
