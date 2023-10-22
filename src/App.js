@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { generate as randomWords } from "random-words";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Container, Row, Col, Card } from "react-bootstrap";
+import "./App.css";
 
-const NUMB_OF_WORDS = 100;
-const SECONDS = 10;
+const NUMB_OF_WORDS = 200;
+const SECONDS = 60;
 
 function App() {
   const [words, setWords] = useState([]);
@@ -172,14 +173,7 @@ function App() {
 
   return (
     <Container>
-      <Row className="mt-5">
-        <Col className="text-right">
-          <p className="small-font">
-            Previous Score: {previousScore} WPM, {previousAccuracy}% Accuracy
-          </p>
-        </Col>
-      </Row>
-      <Row>
+      <Row className="countdown">
         <Col className="text-center">
           <h2 className="display-4">{countDown}</h2>
         </Col>
@@ -218,7 +212,7 @@ function App() {
             <Card.Body>
               <Card.Text>
                 {words.map((word, i) => (
-                  <span key={i}>
+                  <span key={i} className="content-words">
                     <span>
                       {word.split("").map((char, idx) => (
                         <span className={getCharClass(i, idx, char)} key={idx}>
@@ -245,6 +239,25 @@ function App() {
             <p className="display-4 text-info">
               {Math.round((correct / (correct + incorrect)) * 100)} %
             </p>
+          </Col>
+        </Row>
+      )}
+      {status === "finished" && (
+        <Row>
+          <Col className="text-center">
+            <h4 className="display-6">Previous Results</h4>
+          </Col>
+        </Row>
+      )}
+      {status === "finished" && (
+        <Row className="mt-4">
+          <Col className="text-center">
+            <p className="h5">Words per minute:</p>
+            <p className="display-4 text-primary">{previousScore}</p>
+          </Col>
+          <Col className="text-center">
+            <p className="h5">Accuracy:</p>
+            <p className="display-4 text-info">{previousAccuracy}%</p>
           </Col>
         </Row>
       )}
