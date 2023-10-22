@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { generate as randomWords } from "random-words";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Container, Row, Col, Card } from "react-bootstrap";
+import Confetti from "react-confetti";
+
 import "./App.css";
 
 const NUMB_OF_WORDS = 200;
@@ -20,6 +22,8 @@ function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [previousScore, setPreviousScore] = useState(0);
   const [previousAccuracy, setPreviousAccuracy] = useState(0);
+
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const textInput = useRef(null);
 
@@ -78,6 +82,9 @@ function App() {
             setCurrentInput("");
             setIsRunning(false);
 
+            setShowConfetti(true);
+            // setTimeout(hideConfetti, 5000)
+
             localStorage.setItem("previousScore", correct);
             setPreviousScore(correct);
 
@@ -95,6 +102,10 @@ function App() {
       }, 1000);
     }
   }
+
+  // const hideConfetti = () => {
+  //   setShowConfetti(false);
+  // };
 
   function stop() {
     if (intervalRef.current) {
@@ -261,6 +272,8 @@ function App() {
           </Col>
         </Row>
       )}
+
+      {showConfetti && <Confetti />}
     </Container>
   );
 }
