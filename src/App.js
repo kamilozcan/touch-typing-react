@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Container, Row, Col, Card } from "react-bootstrap";
 import Confetti from "react-confetti";
 
-import "./App.css";
+import "./css/App.css";
 
 const NUMB_OF_WORDS = 200;
 const SECONDS = 10;
