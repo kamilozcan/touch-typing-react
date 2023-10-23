@@ -7,7 +7,7 @@ import Confetti from "react-confetti";
 import "./css/App.css";
 
 const NUMB_OF_WORDS = 200;
-const SECONDS = 10;
+const SECONDS = 60;
 
 function App() {
   const [words, setWords] = useState([]);
