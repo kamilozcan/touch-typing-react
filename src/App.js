@@ -7,7 +7,7 @@ import Confetti from "react-confetti";
 import "./App.css";
 
 const NUMB_OF_WORDS = 200;
-const SECONDS = 60;
+const SECONDS = 10;
 
 function App() {
   const [words, setWords] = useState([]);
@@ -69,6 +69,7 @@ function App() {
       setCurrentChar("");
       setCountDown(SECONDS);
       setWordCorrectness(Array(NUMB_OF_WORDS).fill(true));
+      setShowConfetti(false);
     }
 
     if (status !== "started") {
@@ -82,9 +83,6 @@ function App() {
             setCurrentInput("");
             setIsRunning(false);
 
-            setShowConfetti(true);
-            // setTimeout(hideConfetti, 5000)
-
             localStorage.setItem("previousScore", correct);
             setPreviousScore(correct);
 
@@ -93,6 +91,9 @@ function App() {
             const accuracy = Math.round((correct / totalWords) * 100);
             localStorage.setItem("previousAccuracy", accuracy);
             setPreviousAccuracy(accuracy);
+
+            setShowConfetti(true);
+            // setTimeout(hideConfetti, 5000)
 
             return SECONDS;
           } else {
